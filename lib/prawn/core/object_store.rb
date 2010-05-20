@@ -7,8 +7,6 @@
 # This is free software. Please see the LICENSE and COPYING files for details.
 
 
-require 'pdf/reader'
-
 module Prawn
   module Core
     class ObjectStore #:nodoc:
@@ -19,6 +17,8 @@ module Prawn
       BASE_OBJECTS = %w[info pages root]
 
       def initialize(opts = {})
+        require 'pdf/reader' unless Object.const_defined?(:PDF) && PDF.const_defined?(:Reader)
+
         @objects = {}
         @identifiers = []
         
