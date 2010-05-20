@@ -17,12 +17,13 @@ module Prawn
       BASE_OBJECTS = %w[info pages root]
 
       def initialize(opts = {})
-        require 'pdf/reader' unless Object.const_defined?(:PDF) && PDF.const_defined?(:Reader)
-
         @objects = {}
         @identifiers = []
-        
-        load_file(opts[:template]) if opts[:template]
+
+        if opts[:template]
+          require 'pdf/reader' unless Object.const_defined?(:PDF) && PDF.const_defined?(:Reader)
+          load_file(opts[:template])
+        end
 
         @info  ||= ref(opts[:info] || {}).identifier
         @root  ||= ref(:Type => :Catalog).identifier
