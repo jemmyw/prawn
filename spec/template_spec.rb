@@ -83,6 +83,15 @@ describe "Document built from a template" do
     streams.size.should == 2
   end
 
+  it "should not die if using this PDF as a template" do
+    filename = "#{Prawn::BASEDIR}/data/pdfs/complex_template.pdf"
+
+    assert_nothing_raised do
+      @pdf = Prawn::Document.new(:template => filename)
+    end
+  end
+
+
   it "should have balance q/Q operators on all content streams" do
     filename = "#{Prawn::BASEDIR}/data/pdfs/hexagon.pdf"
 

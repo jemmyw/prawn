@@ -1,7 +1,7 @@
 # encoding: utf-8
 #
-# An early example of basic text generation at absolute positions.
-# Mostly kept for nostalgia.
+# Example of two ways of indenting paragraphs
+#
 #
 require "#{File.dirname(__FILE__)}/../example_helper.rb"
 
@@ -15,4 +15,8 @@ Prawn::Document.generate "indent_paragraphs.pdf" do |pdf|
 
   pdf.move_cursor_to(pdf.font.height * 3)
   pdf.text(hello + "\n" + world, :indent_paragraphs => 60)
+
+  # can also indent using a non-breaking space
+  nbsp = Prawn::Text::NBSP
+  pdf.text("\n" * 10 + hello + "\n#{nbsp * 10}" + world)
 end

@@ -58,17 +58,37 @@ module Prawn
 
       alias_method :default_kerning=, :default_kerning
 
+      # Document wide setting of leading
+      # Defaults to 0
+      # Can be overridden using the :leading text option
+      #
+      def default_leading?
+        return 0 if @default_leading.nil?
+        @default_leading
+      end
+
+      def default_leading(number)
+        @default_leading = number
+      end
+
+      alias_method :default_leading=, :default_leading
+
       # Increases or decreases the space between characters.
       # For horizontal text, a positive value will increase the space.
       # For veritical text, a positive value will decrease the space.
       #
       def character_spacing(amount=nil)
         return @character_spacing || 0 if amount.nil?
-        @character_spacing = amount
-        add_content "\n%.3f Tc" % amount
-        yield
-        add_content "\n0 Tc"
-        @character_spacing = 0
+        original_character_spacing = character_spacing
+        if original_character_spacing == amount
+          yield
+        else
+          @character_spacing = amount
+          add_content "\n%.3f Tc" % amount
+          yield
+          add_content "\n%.3f Tc" % original_character_spacing
+          @character_spacing = original_character_spacing
+        end
       end
 
       # Increases or decreases the space between words.
@@ -77,11 +97,16 @@ module Prawn
       #
       def word_spacing(amount=nil)
         return @word_spacing || 0 if amount.nil?
-        @word_spacing = amount
-        add_content "\n%.3f Tw" % amount
-        yield
-        add_content "\n0 Tw"
-        @word_spacing = 0
+        original_word_spacing = word_spacing
+        if original_word_spacing == amount
+          yield
+        else
+          @word_spacing = amount
+          add_content "\n%.3f Tw" % amount
+          yield
+          add_content "\n%.3f Tw" % original_word_spacing
+          @word_spacing = original_word_spacing
+        end
       end
 
       private

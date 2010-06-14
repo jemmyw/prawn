@@ -2,6 +2,31 @@
 
 require File.join(File.expand_path(File.dirname(__FILE__)), "spec_helper")
 
+describe "Text::Box" do
+
+  it "should be able to set leading document wide" do
+    create_pdf
+    @pdf.default_leading(7)
+    @pdf.default_leading = 7
+    text_box = Prawn::Text::Box.new("hello world",
+                                    :document => @pdf)
+    text_box.leading.should == 7
+  end
+
+  it "option should be able to override document wide leading" do
+    create_pdf
+    @pdf.default_leading = 7
+    text_box = Prawn::Text::Box.new("hello world",
+                                    :document => @pdf,
+                                    :leading => 20)
+    text_box.leading.should == 20
+  end
+  it "should default to document-wide leading if no" +
+    "leading option is provided" do
+    
+  end
+end
+
 describe "Text::Box#extensions" do
   it "should be able to override default line wrapping" do
     create_pdf
@@ -14,7 +39,7 @@ describe "Text::Box#extensions" do
 end
 
 describe "Text::Box#render with :align => :justify" do
-  it "should draw the character spacing to the document" do
+  it "should draw the word spacing to the document" do
     create_pdf
     string = "hello world " * 10
     options = { :document => @pdf, :align => :justify }
@@ -540,6 +565,29 @@ describe "drawing bounding boxes" do
   
 end
 
+
+describe "Text::Box#render with :character_spacing option" do
+  it "should draw the character spacing to the document" do
+    create_pdf
+    string = "hello world"
+    options = { :document => @pdf, :character_spacing => 10 }
+    text_box = Prawn::Text::Box.new(string, options)
+    text_box.render
+    contents = PDF::Inspector::Text.analyze(@pdf.render)
+    contents.character_spacing[0].should == 10
+  end
+  it "should take character spacing into account when wrapping" do
+    create_pdf
+    @pdf.font "Courier"
+    text_box = Prawn::Text::Box.new("hello world",
+                                    :width    => 100,
+                                    :overflow => :expand,
+                                    :character_spacing => 10,
+                                    :document => @pdf)
+    text_box.render
+    text_box.text.should == "hello\nworld"
+  end
+end
   
 describe "Text::Box wrapping" do
   before(:each) do
@@ -552,9 +600,28 @@ describe "Text::Box wrapping" do
 
     @pdf.font "Courier"
     text_box = Prawn::Text::Box.new(text,
-                                          :width    => 220,
-                                          :overflow => :expand,
-                                          :document => @pdf)
+                                    :width    => 220,
+                                    :overflow => :expand,
+                                    :document => @pdf)
+    text_box.render
+    text_box.text.should == expect
+  end
+
+  # white space was being stripped after the entire line was generated, meaning
+  # that leading white space characters reduced the amount of space on the line
+  # for other characters, so wrapping "hello hello" resulted in
+  # "hello\n\nhello", rather than "hello\nhello"
+  #
+  it "white space at beginning of line should not be taken into account when" +
+    " computing line width" do
+    text = "hello hello"
+    expect = "hello\nhello"
+
+    @pdf.font "Courier"
+    text_box = Prawn::Text::Box.new(text,
+                                    :width    => 40,
+                                    :overflow => :expand,
+                                    :document => @pdf)
     text_box.render
     text_box.text.should == expect
   end
