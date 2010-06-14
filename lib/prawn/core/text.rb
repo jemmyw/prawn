@@ -67,7 +67,8 @@ module Prawn
         @default_leading
       end
 
-      def default_leading(number)
+      def default_leading(number = nil)
+        return @default_leading || 0 if number.nil?
         @default_leading = number
       end
 

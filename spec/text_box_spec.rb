@@ -8,6 +8,7 @@ describe "Text::Box" do
     create_pdf
     @pdf.default_leading(7)
     @pdf.default_leading = 7
+    @pdf.default_leading.should == 7
     text_box = Prawn::Text::Box.new("hello world",
                                     :document => @pdf)
     text_box.leading.should == 7
