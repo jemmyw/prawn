@@ -7,8 +7,6 @@
 # This is free software. Please see the LICENSE and COPYING files for details.
 
 
-require 'pdf/reader'
-
 module Prawn
   module Core
     class ObjectStore #:nodoc:
@@ -22,7 +20,10 @@ module Prawn
         @objects = {}
         @identifiers = []
 
-        load_file(opts[:template]) if opts[:template]
+        if opts[:template]
+          require 'pdf/reader' unless Object.const_defined?(:PDF) && PDF.const_defined?(:Reader)
+          load_file(opts[:template])
+        end
 
         @info  ||= ref(opts[:info] || {}).identifier
         @root  ||= ref(:Type => :Catalog).identifier
